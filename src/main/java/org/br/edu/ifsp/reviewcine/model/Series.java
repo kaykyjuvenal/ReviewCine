@@ -1,6 +1,12 @@
-package org.br.edu.ifsp.reviewcine;
+package org.br.edu.ifsp.reviewcine.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "series")
 public class Series {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
     private double vote_average;
@@ -8,5 +14,9 @@ public class Series {
     private String first_air_date;
     private boolean adult;
     private double popularity;
+    @OneToOne
     private Elenco elenco;
+
+
+
 }
