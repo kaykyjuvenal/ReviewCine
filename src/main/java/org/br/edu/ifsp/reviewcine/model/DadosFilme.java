@@ -1,8 +1,11 @@
 package org.br.edu.ifsp.reviewcine.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public record DadosFilme(@JsonAlias ("name") String name,
                          @JsonAlias ("vote_average") Integer vote_average,
