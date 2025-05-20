@@ -7,11 +7,10 @@ public class DadosPessoa {
 
     @JsonAlias("adult")String adult;
     @JsonAlias("gender") Integer  gender;
-    @JsonAlias("id") Integer id;
+    @JsonAlias("id") Long id;
     @JsonAlias("know_for_department") String department;
     @JsonAlias("name") String name;
     @JsonAlias("original_name") String original_name;
     @JsonAlias("popularity") Double popularity;
-    @JsonAlias("profile_path") String profile_path;
 
 }

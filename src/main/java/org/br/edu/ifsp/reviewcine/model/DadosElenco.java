@@ -8,7 +8,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public record DadosElenco(
-        @JsonAlias("idFilme") Integer idFilme,
-        @JsonAlias("idSerie") Integer idSerie,
+        @JsonAlias("id") Long id,
         @JsonAlias("pessoas") List<Pessoa> pessoas) {
 }
