@@ -1,10 +1,10 @@
 package org.br.edu.ifsp.reviewcine.model;
 
 import jakarta.persistence.*;
+import org.br.edu.ifsp.reviewcine.model.dados.DadosElenco;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "elencos")

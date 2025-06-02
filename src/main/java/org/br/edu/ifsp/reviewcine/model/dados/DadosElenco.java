@@ -1,7 +1,8 @@
-package org.br.edu.ifsp.reviewcine.model;
+package org.br.edu.ifsp.reviewcine.model.dados;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.br.edu.ifsp.reviewcine.model.Pessoa;
 
 import java.util.List;
 
@@ -9,5 +10,5 @@ import java.util.List;
 
 public record DadosElenco(
         @JsonAlias("id") Long id,
-        @JsonAlias("pessoas") List<Pessoa> pessoas) {
+        @JsonAlias("cast") List<DadosPessoa> atores) {
 }

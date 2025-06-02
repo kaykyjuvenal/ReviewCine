@@ -1,6 +1,4 @@
-package org.br.edu.ifsp.reviewcine.service;
-
-import java.util.List;
+package org.br.edu.ifsp.reviewcine.model.dto;
 
 public record FilmeDTO(
          Boolean adult,

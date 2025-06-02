@@ -1,7 +1,6 @@
-package org.br.edu.ifsp.reviewcine.model;
+package org.br.edu.ifsp.reviewcine.model.dados;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import org.hibernate.dialect.function.DB2SubstringFunction;
 
 public class DadosPessoa {
 
@@ -10,7 +9,8 @@ public class DadosPessoa {
     @JsonAlias("id") Long id;
     @JsonAlias("know_for_department") String department;
     @JsonAlias("name") String name;
-    @JsonAlias("original_name") String original_name;
+    @JsonAlias("character") String character;
     @JsonAlias("popularity") Double popularity;
+
 
 }

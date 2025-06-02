@@ -1,10 +1,10 @@
-package org.br.edu.ifsp.reviewcine.model;
+package org.br.edu.ifsp.reviewcine.Results;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class ResultadoFilmes<T>{
+public class ResultadoAPI<T>{
     private int page;
     @JsonProperty("results")
     private List<T> results;

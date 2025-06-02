@@ -1,11 +1,8 @@
 package org.br.edu.ifsp.reviewcine.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.*;
-import org.br.edu.ifsp.reviewcine.service.FilmeDTO;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.br.edu.ifsp.reviewcine.model.dados.DadosFilme;
+import org.br.edu.ifsp.reviewcine.model.dto.FilmeDTO;
 
 @Entity
 @Table(name = "filmes")
