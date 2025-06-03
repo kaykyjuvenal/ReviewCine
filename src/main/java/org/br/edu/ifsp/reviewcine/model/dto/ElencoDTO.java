@@ -6,7 +6,7 @@ import java.util.List;
 
 public record ElencoDTO(
         Long id,
-        List<Pessoa> atores
+        List<Pessoa> pessoas
 
 ) {
 }

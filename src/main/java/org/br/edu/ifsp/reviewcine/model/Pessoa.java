@@ -8,7 +8,7 @@ import org.br.edu.ifsp.reviewcine.model.dados.DadosPessoa;
 
 public class Pessoa {
     @Id
-    private int id;
+    private long id;
     private String adult;
     private String gender;
     private String department;
@@ -29,6 +29,26 @@ public class Pessoa {
     }
 
     public  Pessoa(DadosPessoa dadosPessoa){
+        this.id = dadosPessoa.id();
+        this.adult = dadosPessoa.adult();
+        this.gender = dadosPessoa.gender();
+        this.department = dadosPessoa.department();
+        this.name = dadosPessoa.name();
+        this.popularity = dadosPessoa.popularity();
+        this.character = dadosPessoa.character();
 
+    }
+
+    @Override
+    public String toString() {
+        return "Pessoa{" +
+                "id=" + id +
+                ", adult='" + adult + '\'' +
+                ", gender='" + gender + '\'' +
+                ", department='" + department + '\'' +
+                ", name='" + name + '\'' +
+                ", character='" + character + '\'' +
+                ", popularity=" + popularity +
+                '}';
     }
 }

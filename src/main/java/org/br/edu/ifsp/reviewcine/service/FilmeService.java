@@ -52,9 +52,6 @@ public class FilmeService {
         Filme filme = new Filme(filmeDTO);
         if (existente.isPresent()) {
             filmeRepository.save(filme); // faz update
-        } else {
-            filme.setId(null); // remove o ID para forçar INSERT
-            filmeRepository.save(filme); // faz insert
         }
     }
 

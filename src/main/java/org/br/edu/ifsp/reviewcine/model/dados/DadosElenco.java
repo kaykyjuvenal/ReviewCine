@@ -10,5 +10,5 @@ import java.util.List;
 
 public record DadosElenco(
         @JsonAlias("id") Long id,
-        @JsonAlias("cast") List<DadosPessoa> atores) {
+        @JsonAlias("cast") List<DadosPessoa> pessoas) {
 }

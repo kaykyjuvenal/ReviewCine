@@ -1,8 +1,13 @@
 package org.br.edu.ifsp.reviewcine;
 
+import org.br.edu.ifsp.reviewcine.model.Elenco;
+import org.br.edu.ifsp.reviewcine.model.Pessoa;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.Filme;
+import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
+import org.br.edu.ifsp.reviewcine.service.ElencoService;
 import org.br.edu.ifsp.reviewcine.service.FilmeService;
+import org.br.edu.ifsp.reviewcine.service.PessoaService;
 import org.br.edu.ifsp.reviewcine.service.SerieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +32,12 @@ public class Main {
         private FilmeService filmeService;
         @Autowired
         private SerieService serieService;
+        @Autowired
+        private ElencoService elencoService;
+        @Autowired
+        private PessoaService pessoaService;
+    @Autowired
+    private ElencoRepository elencoRepository;
 
 
         public void menu() {
@@ -39,6 +50,8 @@ public class Main {
                                 4 - Carregar dados de series no banco de dados  
                                 5 - Carregar uma serie unica.
                                 6 - Exibir database series.
+                                7 - Obter um elenco.
+                             
                                 """;
                         System.out.println(menu);
                         opcao = leitura.nextInt();
@@ -57,6 +70,12 @@ public class Main {
 
                                 case 6: List<Serie> series = serieService.findAll();
                                         System.out.println(series.toString());
+                                case 7:
+                                        Elenco elenco = new Elenco(elencoService.obterPorId(5));
+                                        for (Pessoa pessoa : elenco.getPessoas()){
+                                                pessoaService.savePessoa(pessoa);
+                                        };
+                                        elencoRepository.save(elenco);
                         }
                 }
 
