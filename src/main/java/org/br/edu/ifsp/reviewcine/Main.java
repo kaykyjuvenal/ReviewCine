@@ -5,6 +5,7 @@ import org.br.edu.ifsp.reviewcine.model.Pessoa;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.Filme;
 import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
+import org.br.edu.ifsp.reviewcine.repository.FilmeRepository;
 import org.br.edu.ifsp.reviewcine.service.ElencoService;
 import org.br.edu.ifsp.reviewcine.service.FilmeService;
 import org.br.edu.ifsp.reviewcine.service.PessoaService;
@@ -38,6 +39,8 @@ public class Main {
         private PessoaService pessoaService;
     @Autowired
     private ElencoRepository elencoRepository;
+    @Autowired
+    private FilmeRepository filmeRepository;
 
 
         public void menu() {
@@ -76,6 +79,11 @@ public class Main {
                                                 pessoaService.savePessoa(pessoa);
                                         };
                                         elencoRepository.save(elenco);
+                                case 8:
+                                        System.out.println(filmeRepository.findByTitleContainingIgnoreCase("thunderbolts*"));
+                                        System.out.println("Find all By vote: " + filmeRepository.findAllByOrderByVote_averageDesc());
+                                        System.out.println("Find all By Language: " + filmeRepository.findAllByLanguage("pt"));
+                                        System.out.println("Find all By" + filmeRepository.findAllByPopularityDesc());
                         }
                 }
 
