@@ -105,9 +105,12 @@ public class FilmeService {
         System.out.println("Filme: " + filmeWeb.toString());
 
     }
-    private Filme getUnicFilme(){
+    public  Filme getUnicFilme(){
         var json2 = consumoAPI.obterDados(ENDERECO_FILME_UNICO);
         return new Filme(converteDados.obterDados(json2, DadosFilme.class));
+    }
+    public Filme obterFilmePorNome(String title){
+        return filmeRepository.findByTitleContainingIgnoreCase(title);
     }
 
 }

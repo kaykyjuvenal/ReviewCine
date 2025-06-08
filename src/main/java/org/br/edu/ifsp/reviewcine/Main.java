@@ -6,6 +6,7 @@ import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.Filme;
 import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
 import org.br.edu.ifsp.reviewcine.repository.FilmeRepository;
+import org.br.edu.ifsp.reviewcine.repository.SerieRepository;
 import org.br.edu.ifsp.reviewcine.service.ElencoService;
 import org.br.edu.ifsp.reviewcine.service.FilmeService;
 import org.br.edu.ifsp.reviewcine.service.PessoaService;
@@ -41,6 +42,8 @@ public class Main {
     private ElencoRepository elencoRepository;
     @Autowired
     private FilmeRepository filmeRepository;
+    @Autowired
+    private SerieRepository serieRepository;
 
 
         public void menu() {
@@ -74,16 +77,23 @@ public class Main {
                                 case 6: List<Serie> series = serieService.findAll();
                                         System.out.println(series.toString());
                                 case 7:
-                                        Elenco elenco = new Elenco(elencoService.obterPorId(5));
-                                        for (Pessoa pessoa : elenco.getPessoas()){
-                                                pessoaService.savePessoa(pessoa);
-                                        };
-                                        elencoRepository.save(elenco);
+                                        //Elenco elenco = new Elenco(elencoService.obterPorId(5));
+                                        //for (Pessoa pessoa : elenco.getPessoas()){
+                                         //       pessoaService.savePessoa(pessoa);
+                                        //};
+                                        //elencoRepository.save(elenco);
                                 case 8:
                                         System.out.println(filmeRepository.findByTitleContainingIgnoreCase("thunderbolts*"));
                                         System.out.println("Find all By vote: " + filmeRepository.findAllByOrderByVote_averageDesc());
                                         System.out.println("Find all By Language: " + filmeRepository.findAllByLanguage("pt"));
                                         System.out.println("Find all By" + filmeRepository.findAllByPopularityDesc());
+                                case 9:
+                                        //System.out.println("Find all by Language" + serieRepository.findAllByOriginalLanguageContainingIgnoreCase("en"));
+                                        //System.out.println("Find all by Popularity" + serieRepository.findAllByPopularityDesc());
+                                        //System.out.println("Find all by Vote Avarage" +serieRepository.findAllByOrderByVoteAverageDesc());
+                                        //System.out.println("Find all by FirstAirDateDesc" +serieRepository.findAllByOrderByFirstAirDateDesc());
+                                        System.out.println("Find all by Name" +serieRepository.findByNameContainingIgnoreCase("Inve"));
+                                        //System.out.println("Find all by Popularity" +serieRepository.findByNameIgnoreCase("Invencible"));
                         }
                 }
 

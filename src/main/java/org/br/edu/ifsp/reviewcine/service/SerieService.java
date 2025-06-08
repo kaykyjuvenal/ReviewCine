@@ -3,6 +3,7 @@ package org.br.edu.ifsp.reviewcine.service;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.Results.ResultadoAPI;
 import org.br.edu.ifsp.reviewcine.model.dados.DadosSerie;
+import org.br.edu.ifsp.reviewcine.model.dto.ElencoDTO;
 import org.br.edu.ifsp.reviewcine.model.dto.SerieDTO;
 import org.br.edu.ifsp.reviewcine.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,14 @@ public class SerieService {
     public void buscarSerieWeb(long id) {
         Optional<Serie> serieWeb = serieRepository.findById(id);
         System.out.println("Serie: " + serieWeb.toString());
+
+    }
+    public ElencoDTO buscarPorNome(String nome) {
+        Optional<Serie> serie = serieRepository.findByNameIgnoreCase(nome);
+        if (serie.isPresent()) {
+            return converteDados.;
+
+        }
 
     }
 
