@@ -24,7 +24,7 @@ public class ElencoService {
     private SerieService  serieService;
     private FilmeService filmeService;
 
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     long idElencoPesquisado = 1;
     private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1&";
 
@@ -69,16 +69,17 @@ public class ElencoService {
         Elenco elenco = new Elenco(converteDados.obterDados(jsonElenco, DadosElenco.class));
         return new ElencoDTO(elenco.getId(),elenco.getPessoas());
     }
-    private ElencoDTO obterPorFilme(String nomeFilme){
+    private ElencoDTO buscaElenco(Serie serieObtido){
+        String ENDERECO_ELENCO_SERIE = "https://api.themoviedb.org/3/tv/" + serieObtido.getId() + "/credits?" + API_KEY;
+        var jsonElenco = consumoAPI.obterDados(ENDERECO_ELENCO_SERIE);
+        Elenco elenco = new Elenco(converteDados.obterDados(jsonElenco, DadosElenco.class));
+        return new ElencoDTO(elenco.getId(),elenco.getPessoas());
+    }
+    public ElencoDTO obterPorFilme(String nomeFilme){
         Filme filme= filmeService.obterFilmePorNome(nomeFilme);
         if (filme != null){
             Optional<Elenco> elenco = elencoRepository.findById(filme.getId());
-            if (elenco.isPresent()){
-                return new ElencoDTO(elenco.get().getId(), elenco.get().getPessoas());
-            }
-            else{
-                return buscaElenco(filme);
-            }
+            return elenco.map(value -> new ElencoDTO(value.getId(), value.getPessoas())).orElseGet(() -> buscaElenco(filme));
         }
         else {
             String ENDERECO_FILME = "https://api.themoviedb.org/3/search/movie?"+ API_KEY + "query=${" + nomeFilme +"}";
@@ -90,19 +91,14 @@ public class ElencoService {
         }
 
     }
-    private ElencoDTO obterPorSerie(String nomeSerie){
-        Serie  serie = serieService.obterSerie(nomeSerie);
-        if (filme != null){
-            Optional<Elenco> elenco = elencoRepository.findById(filme.getId());
-            if (elenco.isPresent()){
-                return new ElencoDTO(elenco.get().getId(), elenco.get().getPessoas());
-            }
-            else{
-                return buscaElenco(filme);
-            }
+    public ElencoDTO obterPorSerie(String nomeSerie){
+        Serie  serie = serieService.obterPorNome(nomeSerie);
+        if (serie != null){
+            Optional<Elenco> elenco = elencoRepository.findById(serie.getId());
+            return elenco.map(value -> new ElencoDTO(value.getId(), value.getPessoas())).orElseGet(() -> buscaElenco(serie));
         }
         else {
-            String ENDERECO_FILME = "https://api.themoviedb.org/3/search/movie?"+ API_KEY + "query=${" + nomeFilme +"}";
+            String ENDERECO_FILME = "https://api.themoviedb.org/3/search/tv?"+ API_KEY + "query=${" + nomeSerie +"}";
             var json = consumoAPI.obterDados(ENDERECO_FILME);
             System.out.println("JSON: " + json);
             Filme filmeObtido  = new Filme(converteDados.obterDados(json, DadosFilme.class));

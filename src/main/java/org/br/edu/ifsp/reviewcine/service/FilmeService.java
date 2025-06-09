@@ -19,11 +19,15 @@ public class FilmeService {
     private FilmeRepository filmeRepository;
 
     private final int idFilmePesquisado = 5;
-    private final ConverteDados converteDados = new ConverteDados();
+    @Autowired
+    private ConverteDados converteDados;
+    @Autowired
+    private ConsumoAPI consumoAPI;
+
     private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1&";
     private String ENDERECO_FILME = "https://api.themoviedb.org/3/discover/movie?" + API_KEY + "&primary_release_year=2025";
     private final String ENDERECO_FILME_UNICO = "https://api.themoviedb.org/3/movie/" + idFilmePesquisado + '?'+ API_KEY;
-    private ConsumoAPI consumoAPI = new ConsumoAPI();
+
 
 
 
