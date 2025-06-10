@@ -16,16 +16,13 @@ import java.util.Optional;
 
 @Service
 public class SerieService {
-    @Autowired
+
     private final SerieRepository serieRepository;
-    @Autowired
     private final ConverteDados converteDados;
-    @Autowired
     private final ConsumoAPI consumoAPI;
 
-    private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1"; // Removido o '&' do final
+    private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1";
 
-    // Injeção de dependência via construtor
     @Autowired
     public SerieService(SerieRepository serieRepository, ConverteDados converteDados, ConsumoAPI consumoAPI) {
         this.serieRepository = serieRepository;
@@ -33,63 +30,114 @@ public class SerieService {
         this.consumoAPI = consumoAPI;
     }
 
-    public Serie obterPorNome(String nome) {
-        List<Serie> seriesEncontradas = serieRepository.findByNameContainingIgnoreCase(nome);
+    public List<SerieDTO> obterTodasAsSeries() {
+        return converteDadosParaListaDTO(serieRepository.findAll());
+    }
 
-        if (!seriesEncontradas.isEmpty()) {
-            System.out.println("Série '" + nome + "' encontrada no banco de dados local.");
-            return seriesEncontradas.get(0);
-        } else {
-            System.out.println("Série '" + nome + "' não encontrada localmente. Buscando na web...");
-            return buscarSerieNaWebPorNome(nome);
+    public SerieDTO obterPorId(long id) {
+        Optional<Serie> serie = serieRepository.findById(id);
+        return serie.map(this::converteDadosParaDTO)
+                .orElseGet(() -> converteDadosParaDTO(buscarSerieNaWebPorId(id)));
+    }
+
+    public Serie obterPorNome(String nome) {
+        // Este fluxo chama 'buscarSerieNaWebPorNome', que NÃO tem filtro de ano.
+        return serieRepository.findByNameIgnoreCase(nome)
+                .orElseGet(() -> {
+                    System.out.println("Série '" + nome + "' não encontrada localmente. Buscando na web...");
+                    return buscarSerieNaWebPorNome(nome);
+                });
+    }
+
+    public void buscarSeriesDaWebEGravar() {
+        // Este método mantém o filtro de 2025 para buscar obras daquele ano específico.
+        String ENDERECO_DISCOVER = "https://api.themoviedb.org/3/discover/tv?" + API_KEY + "&language=pt-BR&sort_by=popularity.desc&first_air_date_year=2025";
+        List<DadosSerie> seriesWeb = getTodasSeriesComPaginacao(ENDERECO_DISCOVER);
+        for (DadosSerie dadosSerie : seriesWeb) {
+            serieRepository.save(new Serie(dadosSerie));
+        }
+        System.out.println(seriesWeb.size() + " séries populares de 2025 armazenadas com sucesso no banco de dados!");
+    }
+
+    public Serie buscarSerieNaWebPorId(long id) {
+        String endereco = String.format("https://api.themoviedb.org/3/tv/%d?%s&language=pt-BR", id, API_KEY);
+        try {
+            String json = consumoAPI.obterDados(endereco);
+            DadosSerie dadosSerie = converteDados.obterDados(json, DadosSerie.class);
+            Serie serie = new Serie(dadosSerie);
+
+            serieRepository.save(serie);
+            return serie;
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar série na web por ID: " + e.getMessage());
+            return null;
         }
     }
 
     private Serie buscarSerieNaWebPorNome(String nomeSerie) {
         try {
-            // Codifica o nome da série para ser seguro para URL
             String nomeCodificado = URLEncoder.encode(nomeSerie, StandardCharsets.UTF_8);
-            String ENDERECO_PESQUISA = "https://api.themoviedb.org/3/search/tv?" + API_KEY + "&query=" + nomeCodificado;
 
-            var json = consumoAPI.obterDados(ENDERECO_PESQUISA);
-            System.out.println("JSON da busca por nome: " + json);
+            // PONTO CHAVE: Esta URL de busca por nome NÃO TEM o filtro de ano.
+            String endereco = "https://api.themoviedb.org/3/search/tv?" + API_KEY + "&language=pt-BR&query=" + nomeCodificado;
 
-            // A API de busca retorna uma lista de resultados
+            String json = consumoAPI.obterDados(endereco);
             ResultadoAPI<DadosSerie> resultado = converteDados.obterListaDeDados(json, DadosSerie.class);
 
             if (resultado != null && !resultado.getResults().isEmpty()) {
-                // Pega o primeiro resultado, que geralmente é o mais relevante
                 DadosSerie dados = resultado.getResults().get(0);
-                return new Serie(dados);
+                Serie serie = new Serie(dados);
+
+                System.out.println("Salvando série '" + serie.getName() + "' no banco de dados.");
+                serieRepository.save(serie);
+                return serie;
             }
         } catch (Exception e) {
             System.err.println("Erro ao buscar série na web por nome: " + e.getMessage());
         }
-        return null; // Retorna null se não encontrar ou se houver erro
+        return null;
     }
 
-    // ... Outros métodos da sua classe ...
+    private List<DadosSerie> getTodasSeriesComPaginacao(String enderecoBase) {
+        List<DadosSerie> todasAsSeries = new ArrayList<>();
+        int paginaAtual = 1;
+        int totalPaginas = 1;
 
-    public List<Serie> findAll(){
+        do {
+            String enderecoComPagina = enderecoBase + "&page=" + paginaAtual;
+            try {
+                String json = consumoAPI.obterDados(enderecoComPagina);
+                ResultadoAPI<DadosSerie> resultado = converteDados.obterListaDeDados(json, DadosSerie.class);
+                if (resultado != null && resultado.getResults() != null) {
+                    todasAsSeries.addAll(resultado.getResults());
+                    totalPaginas = resultado.getTotalPages();
+                    System.out.println("Buscando página " + paginaAtual + " de " + totalPaginas);
+                } else {
+                    break;
+                }
+                paginaAtual++;
+            } catch (Exception e) {
+                System.err.println("Erro ao buscar página " + paginaAtual + ": " + e.getMessage());
+                break;
+            }
+        } while (paginaAtual <= totalPaginas);
+
+        return todasAsSeries;
+    }
+
+    private SerieDTO converteDadosParaDTO(Serie serie) {
+        if (serie == null) return null;
+        return new SerieDTO(serie.getId(), serie.getName(), serie.getVote_average(),
+                serie.getVote_count(), serie.getFirst_air_date(), serie.isAdult(),
+                serie.getPopularity(), serie.getOriginal_language(), serie.getOverview());
+    }
+
+    private List<SerieDTO> converteDadosParaListaDTO(List<Serie> series) {
+        return series.stream()
+                .map(this::converteDadosParaDTO)
+                .toList();
+    }
+    public List<Serie> buscarTodasAsSeries(){
         return serieRepository.findAll();
-    }
-
-    public void buscarSeriesWeb() {
-        String ENDERECO_SERIE = "https://api.themoviedb.org/3/discover/tv?" + API_KEY + "&first_air_date.gte=2025-01-01&first_air_date.lte=2025-12-31";
-        List<DadosSerie> seriesWeb = getTodosSerie(ENDERECO_SERIE);
-        for (DadosSerie serie : seriesWeb) {
-            System.out.println(serie.toString());
-            serieRepository.save(new Serie(serie));
-        }
-        System.out.println("Séries armazenadas com sucesso no banco de dados!");
-    }
-
-    private List<DadosSerie> getTodosSerie(String enderecoBase) {
-        // ... (lógica para paginação)
-        return new ArrayList<>(); // Implementar lógica
-    }
-
-    public Optional<Serie> buscarSerieWeb(long id) {
-        return serieRepository.findById(id);
     }
 }

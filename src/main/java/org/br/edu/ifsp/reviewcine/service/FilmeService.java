@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -98,14 +100,14 @@ public class FilmeService {
         for (DadosFilme filme : filmesWeb) {
             System.out.println(filme.toString());
             FilmeDTO filmeDTO = converteDados(new Filme(filme));
-            this.save(filmeDTO);
+            filmeRepository.save(new Filme(filmeDTO));
         }
         System.out.println("Filmes armazenados com sucesso no banco de dados!");
 
     }
     public void buscarFilmeWeb() {
         Filme filmeWeb = getUnicFilme();
-        this.save(converteDados(filmeWeb));
+        filmeRepository.save(filmeWeb);
         System.out.println("Filme: " + filmeWeb.toString());
 
     }
@@ -113,8 +115,40 @@ public class FilmeService {
         var json2 = consumoAPI.obterDados(ENDERECO_FILME_UNICO);
         return new Filme(converteDados.obterDados(json2, DadosFilme.class));
     }
-    public Filme obterFilmePorNome(String title){
-        return filmeRepository.findByTitleContainingIgnoreCase(title);
+    public Filme obterPorNome(String title) {
+        // Este fluxo chama 'buscarFilmeNaWebPorNome', que não tem filtro de ano.
+        return filmeRepository.findByTitleContainingIgnoreCase(title)
+                .orElseGet(() -> {
+                    System.out.println("Filme '" + title + "' não encontrado localmente. Buscando na web...");
+                    return buscarFilmeNaWebPorNome(title);
+                });
+    }
+    private Filme buscarFilmeNaWebPorNome(String nomeFilme) {
+        try {
+            String nomeCodificado = URLEncoder.encode(nomeFilme, StandardCharsets.UTF_8);
+
+            // Endpoint para busca de FILMES (/search/movie)
+            String endereco = String.format("https://api.themoviedb.org/3/search/movie?%s&language=pt-BR&query=%s", API_KEY, nomeCodificado);
+
+            String json = consumoAPI.obterDados(endereco);
+            // Usa ResultadoAPI com DadosFilme para desserializar a lista de resultados
+            ResultadoAPI<DadosFilme> resultado = converteDados.obterListaDeDados(json, DadosFilme.class);
+
+            if (resultado != null && !resultado.getResults().isEmpty()) {
+                // Pega o primeiro resultado da lista (geralmente o mais relevante)
+                DadosFilme dados = resultado.getResults().get(0);
+                Filme filme = new Filme(dados);
+
+                System.out.println("Salvando filme '" + filme.getTitle() + "' no banco de dados.");
+                // Salva no repositório local
+                filmeRepository.save(filme);
+                return filme;
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar filme na web por nome: " + e.getMessage());
+        }
+        // Retorna null se não encontrar resultados ou se ocorrer um erro
+        return null;
     }
 
 }

@@ -1,121 +1,119 @@
 package org.br.edu.ifsp.reviewcine.service;
 
-import org.br.edu.ifsp.reviewcine.Results.ResultadoAPI;
-import org.br.edu.ifsp.reviewcine.model.Elenco;
 import org.br.edu.ifsp.reviewcine.model.Elenco;
 import org.br.edu.ifsp.reviewcine.model.Filme;
+import org.br.edu.ifsp.reviewcine.model.Pessoa;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.dados.DadosElenco;
-import org.br.edu.ifsp.reviewcine.model.dados.DadosFilme;
 import org.br.edu.ifsp.reviewcine.model.dto.ElencoDTO;
 import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
 
 @Service
 public class ElencoService {
     @Autowired
-    private ElencoRepository elencoRepository;
+    private PessoaService pessoaService;
 
-    private SerieService  serieService;
-    private FilmeService filmeService;
+    private final ElencoRepository elencoRepository;
+    private final SerieService serieService;
+    private final FilmeService filmeService;
+    private final ConverteDados converteDados;
+    private final ConsumoAPI consumoAPI;
 
-    private final Scanner scanner = new Scanner(System.in);
-    long idElencoPesquisado = 1;
-    private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1&";
+    private final String API_KEY = "api_key=cd190993f189e0a225dc0799ddb4b9d1";
 
-    private final String ENDERECO_ELENCO_FILME = "https://api.themoviedb.org/3/movie/" + idElencoPesquisado + "/credits?" + API_KEY;
-    private final ConverteDados converteDados = new ConverteDados();
-    private ConsumoAPI consumoAPI = new ConsumoAPI();
-
-
-    public ElencoDTO obterPorId(long id){
-        Optional<Elenco> elenco = elencoRepository.findById(id);
-        if(elenco.isPresent()){
-            return converteDados(elenco.get());
-        }else {
-            String ENDERECO_ELENCO_FILME = "https://api.themoviedb.org/3/movie/" + id + "/credits?" + API_KEY;
-
-
-            var json = consumoAPI.obterDados(ENDERECO_ELENCO_FILME);
-            System.out.println("JSON: " + json);
-            Elenco elencoObtido = new Elenco(converteDados.obterDados(json, DadosElenco.class));
-            System.out.println("Elenco: " + elencoObtido);
-
-            try{
-                System.out.println(elencoObtido);
-
-                if (elencoObtido.getId() == id){
-
-                    return new ElencoDTO(elencoObtido.getId(), elencoObtido.getPessoas());
-
-                }
-                else {
-                    throw new NullPointerException();
-                }
-            }catch (Exception e){
-                return null;
-            }
-
-        }
+    @Autowired
+    public ElencoService(ElencoRepository elencoRepository, SerieService serieService, FilmeService filmeService, ConverteDados converteDados, ConsumoAPI consumoAPI) {
+        this.elencoRepository = elencoRepository;
+        this.serieService = serieService;
+        this.filmeService = filmeService;
+        this.converteDados = converteDados;
+        this.consumoAPI = consumoAPI;
     }
-    private ElencoDTO buscaElenco(Filme filmeObtido){
-        String ENDERECO_ELENCO_FILME = "https://api.themoviedb.org/3/movie/" + filmeObtido.getId() + "/credits?" + API_KEY;
-        var jsonElenco = consumoAPI.obterDados(ENDERECO_ELENCO_FILME);
-        Elenco elenco = new Elenco(converteDados.obterDados(jsonElenco, DadosElenco.class));
-        return new ElencoDTO(elenco.getId(),elenco.getPessoas());
-    }
-    private ElencoDTO buscaElenco(Serie serieObtido){
-        String ENDERECO_ELENCO_SERIE = "https://api.themoviedb.org/3/tv/" + serieObtido.getId() + "/credits?" + API_KEY;
-        var jsonElenco = consumoAPI.obterDados(ENDERECO_ELENCO_SERIE);
-        Elenco elenco = new Elenco(converteDados.obterDados(jsonElenco, DadosElenco.class));
-        return new ElencoDTO(elenco.getId(),elenco.getPessoas());
-    }
-    public ElencoDTO obterPorFilme(String nomeFilme){
-        Filme filme= filmeService.obterFilmePorNome(nomeFilme);
-        if (filme != null){
-            Optional<Elenco> elenco = elencoRepository.findById(filme.getId());
-            return elenco.map(value -> new ElencoDTO(value.getId(), value.getPessoas())).orElseGet(() -> buscaElenco(filme));
-        }
-        else {
-            String ENDERECO_FILME = "https://api.themoviedb.org/3/search/movie?"+ API_KEY + "query=${" + nomeFilme +"}";
-            var json = consumoAPI.obterDados(ENDERECO_FILME);
-            System.out.println("JSON: " + json);
-            Filme filmeObtido  = new Filme(converteDados.obterDados(json, DadosFilme.class));
-            return buscaElenco(filmeObtido);
 
+    /**
+     * Obtém o elenco de um filme pelo nome.
+     */
+    public ElencoDTO obterPorFilme(String nomeFilme) {
+        Filme filme = filmeService.obterPorNome(nomeFilme);
+
+        if (filme == null) {
+            System.out.println("Filme '" + nomeFilme + "' não encontrado.");
+            return null;
         }
 
+        // Usa o novo método para garantir que a lista 'pessoas' seja carregada
+        return elencoRepository.findByIdWithPessoas(filme.getId()) // <-- MUDANÇA AQUI
+                .map(this::converteDadosParaDTO)
+                .orElseGet(() -> buscaElencoNaWeb(filme));
     }
-    public ElencoDTO obterPorSerie(String nomeSerie){
-        Serie  serie = serieService.obterPorNome(nomeSerie);
-        if (serie != null){
-            Optional<Elenco> elenco = elencoRepository.findById(serie.getId());
-            return elenco.map(value -> new ElencoDTO(value.getId(), value.getPessoas())).orElseGet(() -> buscaElenco(serie));
+
+    // Aplique a mesma lógica para obterPorSerie
+    public ElencoDTO obterPorSerie(String nomeSerie) {
+        Serie serie = serieService.obterPorNome(nomeSerie);
+
+        if (serie == null) {
+            System.out.println("Série '" + nomeSerie + "' não encontrada.");
+            return null;
         }
-        else {
-            String ENDERECO_FILME = "https://api.themoviedb.org/3/search/tv?"+ API_KEY + "query=${" + nomeSerie +"}";
-            var json = consumoAPI.obterDados(ENDERECO_FILME);
-            System.out.println("JSON: " + json);
-            Filme filmeObtido  = new Filme(converteDados.obterDados(json, DadosFilme.class));
-            return buscaElenco(filmeObtido);
 
+        return elencoRepository.findByIdWithPessoas(serie.getId()) // <-- MUDANÇA AQUI
+                .map(this::converteDadosParaDTO)
+                .orElseGet(() -> buscaElencoNaWeb(serie));
+    }
+    /**
+     * Busca o elenco de um FILME na API externa, SEM FILTRO adicional.
+     */
+    private ElencoDTO buscaElencoNaWeb(Filme filme) {
+        System.out.println("Buscando elenco para o filme: " + filme.getTitle());
+        String endereco = String.format("https://api.themoviedb.org/3/movie/%d/credits?%s", filme.getId(), API_KEY);
+        return obterElencoDaApi(endereco);
+    }
+
+    /**
+     * Busca o elenco de uma SÉRIE na API externa, SEM FILTRO adicional.
+     */
+    private ElencoDTO buscaElencoNaWeb(Serie serie) {
+        System.out.println("Buscando elenco para a série: " + serie.getName());
+        String endereco = String.format("https://api.themoviedb.org/3/tv/%d/credits?%s", serie.getId(), API_KEY);
+        return obterElencoDaApi(endereco);
+    }
+
+    /**
+     * Método auxiliar genérico para buscar, converter e retornar o elenco da API.
+     */
+    private ElencoDTO obterElencoDaApi(String endereco) {
+        try {
+            String jsonElenco = consumoAPI.obterDados(endereco);
+            DadosElenco dadosElenco = converteDados.obterDados(jsonElenco, DadosElenco.class);
+
+            if (dadosElenco == null) return null;
+
+            Elenco elenco = new Elenco(dadosElenco);
+
+            for (Pessoa pessoa : elenco.getPessoas()){
+                pessoaService.savePessoa(pessoa);
+            };
+            elencoRepository.save(elenco);
+
+            return converteDadosParaDTO(elenco);
+        } catch (Exception e) {
+            System.err.println("Falha ao obter ou processar dados do elenco da API: " + e.getMessage());
+            return null;
         }
-
     }
 
-    private ElencoDTO converteDados(Elenco elenco) {
-        return new ElencoDTO(elenco.getId(),elenco.getPessoas());
+    private ElencoDTO converteDadosParaDTO(Elenco elenco) {
+        if (elenco == null) return null;
+        return new ElencoDTO(elenco.getId(), elenco.getPessoas());
     }
-    private void save(ElencoDTO elencoDTO) {
-        elencoRepository.save(new Elenco(elencoDTO)); // faz update
-    }
-    public List<ElencoDTO> converteDados(List<Elenco> elencos){
+
+    public List<ElencoDTO> converteDadosParaListaDTO(List<Elenco> elencos) {
         return elencos.stream()
-                .map(elenco-> new ElencoDTO(elenco.getId(),elenco.getPessoas())).toList();
+                .map(this::converteDadosParaDTO)
+                .toList();
     }
 }

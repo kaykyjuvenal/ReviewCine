@@ -1,5 +1,7 @@
 package org.br.edu.ifsp.reviewcine;
 
+import org.br.edu.ifsp.reviewcine.model.Elenco;
+import org.br.edu.ifsp.reviewcine.model.Pessoa;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.Filme;
 import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
@@ -72,22 +74,22 @@ public class Main implements CommandLineRunner {
                                         System.out.println(filmes.toString());
                                         break; // << FIX ADICIONADO
                                 case 4:
-                                        serieService.buscarSeriesWeb();
+                                        serieService.buscarSeriesDaWebEGravar();
                                         break; // << FIX ADICIONADO
                                 case 5:
-                                        serieService.buscarSerieWeb(idFilmePesquisado);
+                                        serieService.buscarSerieNaWebPorId(idFilmePesquisado);
                                         break; // << FIX ADICIONADO
                                 case 6:
-                                        List<Serie> series = serieService.findAll();
+                                        List<Serie> series = serieService.buscarTodasAsSeries();
                                         System.out.println(series.toString());
                                         break; // << FIX ADICIONADO
                                 case 7:
                                         System.out.println("Lógica de salvar elenco comentada no código.");
-                                        //Elenco elenco = new Elenco(elencoService.obterPorId(5));
-                                        //for (Pessoa pessoa : elenco.getPessoas()){
-                                        //       pessoaService.savePessoa(pessoa);
-                                        //};
-                                        //elencoRepository.save(elenco);
+                                        Elenco elenco = new Elenco(elencoService.obterPorFilme("Thunderbolts*"));
+                                        for (Pessoa pessoa : elenco.getPessoas()){
+                                               pessoaService.savePessoa(pessoa);
+                                        };
+                                        elencoRepository.save(elenco);
                                         break; // << FIX ADICIONADO
                                 case 8:
                                         System.out.println(filmeRepository.findByTitleContainingIgnoreCase("thunderbolts*"));
@@ -104,9 +106,8 @@ public class Main implements CommandLineRunner {
                                         //System.out.println("Find all by Popularity" +serieRepository.findByNameIgnoreCase("Invencible"));
                                         break; // << FIX ADICIONADO
                                 case 10:
-                                        System.out.println(elencoService.obterPorSerie("WandaVision"));
-                                        System.out.println(elencoService.obterPorSerie("Invincible"));
-                                        System.out.println(elencoService.obterPorSerie("The Walking Dead"));
+                                        System.out.println(elencoService.obterPorSerie("Wanda Vision"));
+                                        System.out.println(elencoService.obterPorSerie("Invencível"));
                                         System.out.println(elencoService.obterPorFilme("Thunderbolts*"));
                                         System.out.println(elencoService.obterPorFilme("Titanic"));
                                         break; // << FIX ADICIONADO

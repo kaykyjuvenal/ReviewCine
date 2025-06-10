@@ -17,7 +17,7 @@ public class SerieController {
 
     @GetMapping
     public List<Serie> GetAllSeries() {
-        return serieService.findAll();
+        return serieService.buscarTodasAsSeries();
     }
    //
    //@GetMapping("/top3")
