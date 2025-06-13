@@ -73,18 +73,14 @@ public class ElencoService {
         return obterElencoDaApi(endereco);
     }
 
-    /**
-     * Busca o elenco de uma SÉRIE na API externa, SEM FILTRO adicional.
-     */
+
     private ElencoDTO buscaElencoNaWeb(Serie serie) {
         System.out.println("Buscando elenco para a série: " + serie.getName());
         String endereco = String.format("https://api.themoviedb.org/3/tv/%d/credits?%s", serie.getId(), API_KEY);
         return obterElencoDaApi(endereco);
     }
 
-    /**
-     * Método auxiliar genérico para buscar, converter e retornar o elenco da API.
-     */
+
     private ElencoDTO obterElencoDaApi(String endereco) {
         try {
             String jsonElenco = consumoAPI.obterDados(endereco);

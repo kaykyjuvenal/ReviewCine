@@ -6,6 +6,8 @@ import org.br.edu.ifsp.reviewcine.model.dados.DadosFilme;
 import org.br.edu.ifsp.reviewcine.model.dto.FilmeDTO;
 import org.br.edu.ifsp.reviewcine.repository.FilmeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -60,7 +62,13 @@ public class FilmeService {
             filmeRepository.save(filme); // faz update
         }
     }
+    public List<FilmeDTO> obterTop3FilmesPopulares() {
+        // Cria um objeto de paginação: página 0 (a primeira), com 3 elementos.
+        Pageable topTres = PageRequest.of(0, 3);
 
+        List<Filme> topFilmes = filmeRepository.findMaisPopulares(topTres);
+        return converteDados(topFilmes);
+    }
     public FilmeRepository getFilmeRepository() {
         return filmeRepository;
     }
@@ -73,8 +81,11 @@ public class FilmeService {
         int paginaAtual = 1;
         int totalPaginas = 1;
         var todosFilmes = new ArrayList<DadosFilme>();
+
+        // PONTO CHAVE: Esta URL de busca por nome NÃO TEM o filtro de ano.
+
         do {
-            ENDERECO_FILME = ENDERECO_FILME + "&page=" + paginaAtual;
+            ENDERECO_FILME = ENDERECO_FILME + "&language=pt-BR"+ "&page=" + paginaAtual;
             try{
                 var json = consumoAPI.obterDados(ENDERECO_FILME);
                 System.out.println("JSON: " + json);

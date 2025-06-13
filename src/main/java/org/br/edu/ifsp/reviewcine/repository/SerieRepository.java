@@ -1,6 +1,7 @@
 package org.br.edu.ifsp.reviewcine.repository;
 
 import org.br.edu.ifsp.reviewcine.model.Serie;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -41,4 +42,6 @@ public interface SerieRepository extends JpaRepository<Serie,Long> {
     // Encontrar todas as séries ordenadas pela data da primeira exibição (mais recentes primeiro)
     @Query("SELECT s FROM Serie s ORDER BY s.first_air_date DESC")
     List<Serie> findAllByOrderByFirstAirDateDesc();
+    @Query("SELECT s FROM Serie s ORDER BY s.popularity DESC")
+    List<Serie> findMaisPopulares(Pageable pageable);
 }

@@ -6,6 +6,8 @@ import org.br.edu.ifsp.reviewcine.model.dados.DadosSerie;
 import org.br.edu.ifsp.reviewcine.model.dto.SerieDTO;
 import org.br.edu.ifsp.reviewcine.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -139,5 +141,12 @@ public class SerieService {
     }
     public List<Serie> buscarTodasAsSeries(){
         return serieRepository.findAll();
+    }
+    public List<SerieDTO> obterTop3SeriesMaisPopulares() {
+        // Página 0, 3 elementos por página.
+        Pageable topTres = PageRequest.of(0, 3);
+
+        List<Serie> topSeries = serieRepository.findMaisPopulares(topTres);
+        return converteDadosParaListaDTO(topSeries);
     }
 }

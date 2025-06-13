@@ -55,6 +55,7 @@ public class Main implements CommandLineRunner {
                     8 - Consultas de Filme (Repository)
                     9 - Consultas de Série (Repository)
                     10 - Buscar Elenco por nome de Obra
+                    11 - Teste para buscar o top 3 de filmes e series;
                                     
                     0 - Sair
                     """;
@@ -111,6 +112,9 @@ public class Main implements CommandLineRunner {
                                         System.out.println(elencoService.obterPorFilme("Thunderbolts*"));
                                         System.out.println(elencoService.obterPorFilme("Titanic"));
                                         break; // << FIX ADICIONADO
+                                case 11:
+                                        System.out.println(filmeService.obterTop3FilmesPopulares());
+                                        System.out.println(serieService.obterTop3SeriesMaisPopulares());
                         }
                 }
         }
