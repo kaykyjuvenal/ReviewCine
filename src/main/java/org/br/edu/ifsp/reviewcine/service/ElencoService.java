@@ -6,6 +6,7 @@ import org.br.edu.ifsp.reviewcine.model.Pessoa;
 import org.br.edu.ifsp.reviewcine.model.Serie;
 import org.br.edu.ifsp.reviewcine.model.dados.DadosElenco;
 import org.br.edu.ifsp.reviewcine.model.dto.ElencoDTO;
+import org.br.edu.ifsp.reviewcine.model.dto.SerieDTO;
 import org.br.edu.ifsp.reviewcine.repository.ElencoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ElencoService {
      * Obtém o elenco de um filme pelo nome.
      */
     public ElencoDTO obterPorFilme(String nomeFilme) {
-        Filme filme = filmeService.obterPorNome(nomeFilme);
+        Filme filme = new Filme(filmeService.obterPorNome(nomeFilme));
 
         if (filme == null) {
             System.out.println("Filme '" + nomeFilme + "' não encontrado.");
@@ -53,16 +54,15 @@ public class ElencoService {
 
     // Aplique a mesma lógica para obterPorSerie
     public ElencoDTO obterPorSerie(String nomeSerie) {
-        Serie serie = serieService.obterPorNome(nomeSerie);
+        SerieDTO serie = serieService.obterPorNome(nomeSerie);
 
         if (serie == null) {
             System.out.println("Série '" + nomeSerie + "' não encontrada.");
             return null;
         }
-
-        return elencoRepository.findByIdWithPessoas(serie.getId()) // <-- MUDANÇA AQUI
+        return elencoRepository.findByIdWithPessoas(serie.id()) // <-- MUDANÇA AQUI
                 .map(this::converteDadosParaDTO)
-                .orElseGet(() -> buscaElencoNaWeb(serie));
+                .orElseGet(() -> buscaElencoNaWeb(new Serie(serie)));
     }
     /**
      * Busca o elenco de um FILME na API externa, SEM FILTRO adicional.

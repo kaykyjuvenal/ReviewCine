@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -34,7 +35,6 @@ public class FilmeService {
 
 
 
-
     public List<FilmeDTO> obterTodosOsFilmes(){return converteDados(filmeRepository.findAll());}
     public FilmeDTO converteDados(Filme filme){
         return new FilmeDTO(filme.isAdult(),filme.getId(), filme.getLanguage(),
@@ -48,13 +48,7 @@ public class FilmeService {
                 , filme.getRelease_date(), filme.getTitle(), filme.getVote_average(),
                         filme.getVote_count())).toList();
     }
-    public FilmeDTO obterPorId(long id){
-        Optional<Filme> filme = filmeRepository.findById(id);
-        if(filme.isPresent()){
-            return converteDados(filme.get());
-        }
-        return null;
-    }
+
     public void save(FilmeDTO filmeDTO){
         Optional<Filme> existente = filmeRepository.findById(filmeDTO.id());
         Filme filme = new Filme(filmeDTO);
@@ -68,9 +62,6 @@ public class FilmeService {
 
         List<Filme> topFilmes = filmeRepository.findMaisPopulares(topTres);
         return converteDados(topFilmes);
-    }
-    public FilmeRepository getFilmeRepository() {
-        return filmeRepository;
     }
 
     public List<Filme> findAll(){
@@ -126,15 +117,56 @@ public class FilmeService {
         var json2 = consumoAPI.obterDados(ENDERECO_FILME_UNICO);
         return new Filme(converteDados.obterDados(json2, DadosFilme.class));
     }
-    public Filme obterPorNome(String title) {
-        // Este fluxo chama 'buscarFilmeNaWebPorNome', que não tem filtro de ano.
-        return filmeRepository.findByTitleContainingIgnoreCase(title)
-                .orElseGet(() -> {
-                    System.out.println("Filme '" + title + "' não encontrado localmente. Buscando na web...");
-                    return buscarFilmeNaWebPorNome(title);
-                });
+    public FilmeDTO obterPorNome(String title) {
+        System.out.println("Buscando filme localmente pelo título: " + title);
+        Optional<Filme> filmeLocal = filmeRepository.findByTitleContainingIgnoreCase(title);
+
+        if (filmeLocal.isPresent()) {
+            System.out.println("Filme encontrado no banco de dados local!");
+            // Se encontrou, converte para DTO e retorna
+            return converteDados(filmeLocal.get());
+        } else {
+            System.out.println("Filme não encontrado localmente. Acionando busca na API externa...");
+            Filme filmeDaWeb = new Filme(Objects.requireNonNull(buscarFilmeNaWebPorNome(title)));
+            System.out.println("Filme encontrado na web e salvo no banco!");
+            // Se encontrou na web, converte para DTO e retorna
+            return converteDados(filmeDaWeb);
+        }
     }
-    private Filme buscarFilmeNaWebPorNome(String nomeFilme) {
+    public FilmeDTO obterPorId(long id) {
+        System.out.println("Buscando filme localmente pelo ID: " + id);
+        Optional<Filme> filmeLocal = filmeRepository.findById(id);
+
+        if (filmeLocal.isPresent()) {
+            System.out.println("Filme encontrado no banco de dados local!");
+            return converteDados(filmeLocal.get());
+        } else {
+            System.out.println("Filme não encontrado localmente. Acionando busca na API externa...");
+
+            // --- Lógica da API diretamente aqui dentro ---
+            String endereco = String.format("https://api.themoviedb.org/3/movie/%d?%s&language=pt-BR", id, API_KEY);
+
+            try {
+                String json = consumoAPI.obterDados(endereco);
+                DadosFilme dadosFilme = converteDados.obterDados(json, DadosFilme.class);
+
+                if (dadosFilme != null) {
+                    Filme filmeDaWeb = new Filme(dadosFilme);
+
+                    System.out.println("Filme encontrado na web e salvo no banco!");
+                    filmeRepository.save(filmeDaWeb); // Salva para otimizar buscas futuras
+
+                    return converteDados(filmeDaWeb); // Retorna o DTO do novo filme
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao buscar filme na web por ID " + id + ": " + e.getMessage());
+            }
+
+            System.out.println("Filme com ID " + id + " não foi encontrado em nenhuma fonte.");
+            return null;
+        }
+    }
+    private FilmeDTO buscarFilmeNaWebPorNome(String nomeFilme) {
         try {
             String nomeCodificado = URLEncoder.encode(nomeFilme, StandardCharsets.UTF_8);
 
@@ -153,7 +185,7 @@ public class FilmeService {
                 System.out.println("Salvando filme '" + filme.getTitle() + "' no banco de dados.");
                 // Salva no repositório local
                 filmeRepository.save(filme);
-                return filme;
+                return converteDados(filme);
             }
         } catch (Exception e) {
             System.err.println("Erro ao buscar filme na web por nome: " + e.getMessage());

@@ -19,8 +19,6 @@ public class Filme {
     private double vote_average;
     private int vote_count;
 
-    //@OneToOne
-    //private Elenco elenco;
 
     public Filme() {
     }

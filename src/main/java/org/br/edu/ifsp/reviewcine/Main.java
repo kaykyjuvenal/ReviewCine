@@ -78,11 +78,11 @@ public class Main implements CommandLineRunner {
                                         serieService.buscarSeriesDaWebEGravar();
                                         break; // << FIX ADICIONADO
                                 case 5:
-                                        serieService.buscarSerieNaWebPorId(idFilmePesquisado);
+                                        serieService.buscarSeriesDaWebEGravar();
                                         break; // << FIX ADICIONADO
                                 case 6:
-                                        List<Serie> series = serieService.buscarTodasAsSeries();
-                                        System.out.println(series.toString());
+
+                                        System.out.println(serieService.obterTodasAsSeries().toString());
                                         break; // << FIX ADICIONADO
                                 case 7:
                                         System.out.println("Lógica de salvar elenco comentada no código.");
@@ -115,6 +115,33 @@ public class Main implements CommandLineRunner {
                                 case 11:
                                         System.out.println(filmeService.obterTop3FilmesPopulares());
                                         System.out.println(serieService.obterTop3SeriesMaisPopulares());
+                                        break;
+                                case 12:
+                                        System.out.println("\n--- INICIANDO TESTES DO PESSOA SERVICE ---");
+
+                                        System.out.println("\nBuscando por ID 287 (Tom Hanks):");
+                                        System.out.println(pessoaService.obterPorId(287L));
+
+                                        System.out.println("\nBuscando por nome exato 'Leonardo DiCaprio':");
+                                        System.out.println(pessoaService.obterPorNomeExato("Leonardo DiCaprio"));
+
+                                        System.out.println("\nBuscando por parte do nome 'Leonardo':");
+                                        pessoaService.obterPorParteDoNome("Leonardo").forEach(System.out::println);
+
+                                        System.out.println("\nBuscando por personagem que contenha 'Stark':");
+                                        pessoaService.obterPorPersonagem("Stark").forEach(System.out::println);
+
+                                        System.out.println("\nBuscando por departamento 'Directing':");
+                                        pessoaService.obterPorDepartamento("Directing").forEach(System.out::println);
+
+                                        System.out.println("\nBuscando por lista de departamentos ('Acting', 'Writing'):");
+                                        pessoaService.obterPorListaDeDepartamentos(List.of("Acting", "Writing")).forEach(System.out::println);
+
+                                        System.out.println("\nBuscando as 6 pessoas mais populares:");
+                                        pessoaService.obterTopPessoasPopulares(6).forEach(System.out::println);
+
+                                        System.out.println("\n--- TESTES DO PESSOA SERVICE CONCLUÍDOS ---");
+                                        break;
                         }
                 }
         }

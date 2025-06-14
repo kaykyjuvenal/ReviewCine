@@ -18,20 +18,18 @@ public class Serie {
     private String original_language;
     @Column(length = 4000) // aumenta o limite da coluna para 4000 caracteres
     private String overview;
-    //@OneToOne
-    //private Elenco elenco;
+
 
     public Serie(DadosSerie dadosSeries) {
-            this.id = dadosSeries.id();
-            this.name = dadosSeries.name();
-            this.vote_average = dadosSeries.vote_average();
-            this.vote_count = dadosSeries.vote_count();
-            this.first_air_date = dadosSeries.first_air_date();
-            this.adult = dadosSeries.adult();
-            this.popularity = dadosSeries.popularity();
-            this.original_language = dadosSeries.original_language();
-            this.overview = dadosSeries.overview();
-            //this.elenco = new Elenco(dadosSeries.elenco());
+        this.id = dadosSeries.id();
+        this.name = dadosSeries.name();
+        this.vote_average = dadosSeries.vote_average();
+        this.vote_count = dadosSeries.vote_count();
+        this.first_air_date = dadosSeries.first_air_date();
+        this.adult = dadosSeries.adult();
+        this.popularity = dadosSeries.popularity();
+        this.original_language = dadosSeries.original_language();
+        this.overview = dadosSeries.overview();
     }
 
     public Serie(SerieDTO serieDTO) {
@@ -44,7 +42,6 @@ public class Serie {
         this.popularity = serieDTO.popularity();
         this.original_language = serieDTO.original_language();
         this.overview = serieDTO.overview();
-        //this.elenco = new Elenco(dadosSeries.elenco());
     }
 
 
@@ -88,6 +85,7 @@ public class Serie {
     public String getOverview() {
         return overview;
     }
+
 
     @Override
     public String toString() {

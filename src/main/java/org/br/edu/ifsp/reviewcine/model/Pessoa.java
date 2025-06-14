@@ -10,7 +10,7 @@ public class Pessoa {
     @Id
     private long id;
     private String adult;
-    private String gender;
+    private int gender;
     private String department;
     private String name;
     private String character;
@@ -18,7 +18,7 @@ public class Pessoa {
 
     public Pessoa(){}
 
-    public Pessoa(int id, String adult, String gender, String department, String name, double popularity, String character) {
+    public Pessoa(int id, String adult, int gender, String department, String name, double popularity, String character) {
         this.id = id;
         this.adult = adult;
         this.gender = gender;
@@ -50,5 +50,33 @@ public class Pessoa {
                 ", character='" + character + '\'' +
                 ", popularity=" + popularity +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getAdult() {
+        return adult;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public String getCharacter() {
+        return character;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPopularity() {
+        return popularity;
     }
 }

@@ -37,22 +37,24 @@ public class SerieService {
     }
 
     public SerieDTO obterPorId(long id) {
-        Optional<Serie> serie = serieRepository.findById(id);
-        return serie.map(this::converteDadosParaDTO)
-                .orElseGet(() -> converteDadosParaDTO(buscarSerieNaWebPorId(id)));
+        Serie serieEncontrada = serieRepository.findById(id)
+                .orElseGet(() -> {
+                    System.out.println("Série com ID " + id + " não encontrada localmente. Buscando na web...");
+                    return buscarSerieNaWebPorId(id);
+                });
+        return converteDadosParaDTO(serieEncontrada);
     }
 
-    public Serie obterPorNome(String nome) {
-        // Este fluxo chama 'buscarSerieNaWebPorNome', que NÃO tem filtro de ano.
-        return serieRepository.findByNameIgnoreCase(nome)
+    public SerieDTO obterPorNome(String nome) {
+        Serie serieEncontrada = serieRepository.findByNameIgnoreCase(nome)
                 .orElseGet(() -> {
                     System.out.println("Série '" + nome + "' não encontrada localmente. Buscando na web...");
                     return buscarSerieNaWebPorNome(nome);
                 });
+        return converteDadosParaDTO(serieEncontrada);
     }
 
     public void buscarSeriesDaWebEGravar() {
-        // Este método mantém o filtro de 2025 para buscar obras daquele ano específico.
         String ENDERECO_DISCOVER = "https://api.themoviedb.org/3/discover/tv?" + API_KEY + "&language=pt-BR&sort_by=popularity.desc&first_air_date_year=2025";
         List<DadosSerie> seriesWeb = getTodasSeriesComPaginacao(ENDERECO_DISCOVER);
         for (DadosSerie dadosSerie : seriesWeb) {
@@ -61,15 +63,14 @@ public class SerieService {
         System.out.println(seriesWeb.size() + " séries populares de 2025 armazenadas com sucesso no banco de dados!");
     }
 
-    public Serie buscarSerieNaWebPorId(long id) {
+    private Serie buscarSerieNaWebPorId(long id) {
         String endereco = String.format("https://api.themoviedb.org/3/tv/%d?%s&language=pt-BR", id, API_KEY);
         try {
             String json = consumoAPI.obterDados(endereco);
             DadosSerie dadosSerie = converteDados.obterDados(json, DadosSerie.class);
             Serie serie = new Serie(dadosSerie);
-
             serieRepository.save(serie);
-            return serie;
+            return serie; // Retorna a entidade Serie
         } catch (Exception e) {
             System.err.println("Erro ao buscar série na web por ID: " + e.getMessage());
             return null;
@@ -79,17 +80,13 @@ public class SerieService {
     private Serie buscarSerieNaWebPorNome(String nomeSerie) {
         try {
             String nomeCodificado = URLEncoder.encode(nomeSerie, StandardCharsets.UTF_8);
-
-            // PONTO CHAVE: Esta URL de busca por nome NÃO TEM o filtro de ano.
             String endereco = "https://api.themoviedb.org/3/search/tv?" + API_KEY + "&language=pt-BR&query=" + nomeCodificado;
-
             String json = consumoAPI.obterDados(endereco);
             ResultadoAPI<DadosSerie> resultado = converteDados.obterListaDeDados(json, DadosSerie.class);
 
             if (resultado != null && !resultado.getResults().isEmpty()) {
                 DadosSerie dados = resultado.getResults().get(0);
                 Serie serie = new Serie(dados);
-
                 System.out.println("Salvando série '" + serie.getName() + "' no banco de dados.");
                 serieRepository.save(serie);
                 return serie;
@@ -139,13 +136,9 @@ public class SerieService {
                 .map(this::converteDadosParaDTO)
                 .toList();
     }
-    public List<Serie> buscarTodasAsSeries(){
-        return serieRepository.findAll();
-    }
-    public List<SerieDTO> obterTop3SeriesMaisPopulares() {
-        // Página 0, 3 elementos por página.
-        Pageable topTres = PageRequest.of(0, 3);
 
+    public List<SerieDTO> obterTop3SeriesMaisPopulares() {
+        Pageable topTres = PageRequest.of(0, 3);
         List<Serie> topSeries = serieRepository.findMaisPopulares(topTres);
         return converteDadosParaListaDTO(topSeries);
     }
