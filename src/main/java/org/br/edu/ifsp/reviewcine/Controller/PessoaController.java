@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/pessoas") // Define o prefixo da URL para todos os endpoints de pessoas
+@CrossOrigin(origins = "*")
+
 public class PessoaController {
 
     private final PessoaService pessoaService;
@@ -33,7 +35,7 @@ public class PessoaController {
     }
 
 
-    @GetMapping("/buscarPorNomeExato")
+    @GetMapping("/obterPorNomeExato")
     public ResponseEntity<PessoaDTO> obterPorNomeExato(@RequestParam String nome) {
         PessoaDTO pessoa = pessoaService.obterPorNomeExato(nome);
         if (pessoa != null) {
@@ -42,22 +44,22 @@ public class PessoaController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/buscarPorParteDoNome")
+    @GetMapping("/obterPorParteDoNome")
     public List<PessoaDTO> obterPorParteDoNome(@RequestParam String nome) {
         return pessoaService.obterPorParteDoNome(nome);
     }
 
-    @GetMapping("/buscarPorPersonagem")
+    @GetMapping("/obterPorPersonagem")
     public List<PessoaDTO> obterPorPersonagem(@RequestParam String personagem) {
         return pessoaService.obterPorPersonagem(personagem);
     }
 
-    @GetMapping("/buscarPorDepartamento")
+    @GetMapping("/obterPorDepartamento")
     public List<PessoaDTO> obterPorDepartamento(@RequestParam String departamento) {
         return pessoaService.obterPorDepartamento(departamento);
     }
 
-    @GetMapping("/buscarPorDepartamentos")
+    @GetMapping("/obterPorDepartamentos")
     public List<PessoaDTO> obterPorListaDeDepartamentos(@RequestParam List<String> departamentos) {
         return pessoaService.obterPorListaDeDepartamentos(departamentos);
     }

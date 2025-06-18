@@ -140,9 +140,9 @@ public class PessoaService {
                 pessoa.getAdult(),
                 pessoa.getGender(),
                 pessoa.getId(),
+                pessoa.getDepartment(),
                 pessoa.getName(),
                 pessoa.getCharacter(),
-                pessoa.getDepartment(),
                 pessoa.getPopularity()
                 );
     }

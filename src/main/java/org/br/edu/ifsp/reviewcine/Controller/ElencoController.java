@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/elencos") // Define o prefixo da URL para todos os endpoints de elenco
+@CrossOrigin(origins = "*")
+
 public class ElencoController {
 
     private final ElencoService elencoService;

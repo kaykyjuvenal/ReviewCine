@@ -96,6 +96,49 @@ public class SerieService {
         }
         return null;
     }
+    public List<SerieDTO> obterSeriesPorPalavraChave(String palavraChave) {
+        System.out.println("Buscando séries localmente pela palavra-chave: " + palavraChave);
+        List<Serie> seriesLocais = serieRepository.findByNameContainingIgnoreCase(palavraChave);
+
+        // Se a busca local retornou algum resultado, use-o.
+        if (!seriesLocais.isEmpty()) {
+            System.out.println(seriesLocais.size() + " série(s) encontrada(s) no banco de dados local.");
+            return converteDadosParaListaDTO(seriesLocais);
+        } else {
+            // Se a lista local estiver vazia, busque na web.
+            System.out.println("Nenhuma série encontrada localmente. Acionando busca na API externa...");
+            List<Serie> seriesDaWeb = buscarSeriesNaWebPorPalavraChave(palavraChave);
+
+            System.out.println(seriesDaWeb.size() + " série(s) encontrada(s) na web e salva(s) no banco!");
+            return converteDadosParaListaDTO(seriesDaWeb);
+        }
+    }
+
+
+    private List<Serie> buscarSeriesNaWebPorPalavraChave(String palavraChave) {
+        try {
+            String nomeCodificado = URLEncoder.encode(palavraChave, StandardCharsets.UTF_8);
+            String endereco = String.format("https://api.themoviedb.org/3/search/tv?%s&language=pt-BR&query=%s", API_KEY, nomeCodificado);
+
+            String json = consumoAPI.obterDados(endereco);
+            ResultadoAPI<DadosSerie> resultado = converteDados.obterListaDeDados(json, DadosSerie.class);
+
+            if (resultado != null && !resultado.getResults().isEmpty()) {
+                // Converte cada 'DadosSerie' da API para uma entidade 'Serie'
+                List<Serie> series = resultado.getResults().stream()
+                        .map(Serie::new)
+                        .toList();
+
+                // Salva TODAS as séries encontradas no banco para otimizar buscas futuras
+                serieRepository.saveAll(series);
+                return series;
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar séries na web por palavra-chave: " + e.getMessage());
+        }
+        // Retorna uma lista vazia se não encontrar nada ou se ocorrer um erro
+        return List.of();
+    }
 
     private List<DadosSerie> getTodasSeriesComPaginacao(String enderecoBase) {
         List<DadosSerie> todasAsSeries = new ArrayList<>();

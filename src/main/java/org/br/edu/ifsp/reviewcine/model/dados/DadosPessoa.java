@@ -16,3 +16,4 @@ public record DadosPessoa(
     @JsonAlias("popularity") Double popularity
 
 ){ }
+

@@ -1,5 +1,6 @@
 package org.br.edu.ifsp.reviewcine.Controller;
 
+import org.br.edu.ifsp.reviewcine.model.Filme;
 import org.br.edu.ifsp.reviewcine.model.dto.FilmeDTO;
 import org.br.edu.ifsp.reviewcine.service.FilmeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/filmes") // Define o prefixo da URL para todos os endpoints nesta classe
+@CrossOrigin(origins = "*")
+
 public class FilmeController {
     @Autowired
     private final FilmeService filmeService;
@@ -43,6 +46,15 @@ public class FilmeController {
             return ResponseEntity.ok(filme);
         }
         return ResponseEntity.notFound().build();
+    }
+    @GetMapping("/obterPorParte")
+    public ResponseEntity<List<FilmeDTO>> obterPorParte(@RequestParam("nome") String nome) {
+        List<FilmeDTO> filmes = filmeService.obterFilmesPorPalavraChave(nome);
+        if(filmes.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }else{
+            return ResponseEntity.ok(filmes);
+        }
     }
 
 

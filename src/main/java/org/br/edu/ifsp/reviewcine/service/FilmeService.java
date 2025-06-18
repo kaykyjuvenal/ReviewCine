@@ -193,5 +193,44 @@ public class FilmeService {
         // Retorna null se não encontrar resultados ou se ocorrer um erro
         return null;
     }
+    public List<FilmeDTO> obterFilmesPorPalavraChave(String palavraChave) {
+        System.out.println("Buscando filmes localmente pela palavra-chave: " + palavraChave);
+        List<Filme> filmesLocais = filmeRepository.findByKeyWordContainingIgnoreCase(palavraChave);
+
+        if (!filmesLocais.isEmpty()) {
+            System.out.println(filmesLocais.size() + " filme(s) encontrado(s) no banco de dados local.");
+            return converteDados(filmesLocais); // Usa seu método de conversão de lista
+        } else {
+            System.out.println("Nenhum filme encontrado localmente. Acionando busca na API externa...");
+            List<Filme> filmesDaWeb = buscarFilmesNaWebPorPalavraChave(palavraChave);
+
+            System.out.println(filmesDaWeb.size() + " filme(s) encontrado(s) na web e salvos no banco!");
+            return converteDados(filmesDaWeb);
+        }
+    }
+    private List<Filme> buscarFilmesNaWebPorPalavraChave(String palavraChave) {
+        try {
+            String nomeCodificado = URLEncoder.encode(palavraChave, StandardCharsets.UTF_8);
+            String endereco = String.format("https://api.themoviedb.org/3/search/movie?%s&language=pt-BR&query=%s", API_KEY, nomeCodificado);
+
+            String json = consumoAPI.obterDados(endereco);
+            ResultadoAPI<DadosFilme> resultado = converteDados.obterListaDeDados(json, DadosFilme.class);
+
+            if (resultado != null && !resultado.getResults().isEmpty()) {
+                // Converte cada 'DadosFilme' para uma entidade 'Filme'
+                List<Filme> filmes = resultado.getResults().stream()
+                        .map(Filme::new)
+                        .toList();
+
+                // Salva todos os filmes encontrados no banco para otimizar buscas futuras
+                filmeRepository.saveAll(filmes);
+                return filmes;
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar filmes na web por palavra-chave: " + e.getMessage());
+        }
+        // Retorna uma lista vazia se não encontrar nada ou se ocorrer um erro
+        return List.of();
+    }
 
 }
