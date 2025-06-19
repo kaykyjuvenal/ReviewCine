@@ -169,28 +169,27 @@ public class FilmeService {
     private FilmeDTO buscarFilmeNaWebPorNome(String nomeFilme) {
         try {
             String nomeCodificado = URLEncoder.encode(nomeFilme, StandardCharsets.UTF_8);
-
-            // Endpoint para busca de FILMES (/search/movie)
             String endereco = String.format("https://api.themoviedb.org/3/search/movie?%s&language=pt-BR&query=%s", API_KEY, nomeCodificado);
-
             String json = consumoAPI.obterDados(endereco);
-            // Usa ResultadoAPI com DadosFilme para desserializar a lista de resultados
             ResultadoAPI<DadosFilme> resultado = converteDados.obterListaDeDados(json, DadosFilme.class);
 
             if (resultado != null && !resultado.getResults().isEmpty()) {
-                // Pega o primeiro resultado da lista (geralmente o mais relevante)
-                DadosFilme dados = resultado.getResults().get(0);
-                Filme filme = new Filme(dados);
+                DadosFilme dadosDoPrimeiroFilme = resultado.getResults().get(0);
+                String tituloDoFilmeApi = dadosDoPrimeiroFilme.title();
 
-                System.out.println("Salvando filme '" + filme.getTitle() + "' no banco de dados.");
-                // Salva no repositório local
-                filmeRepository.save(filme);
-                return converteDados(filme);
+                Optional<Filme> filme  = filmeRepository.findByTitleContainingIgnoreCase(tituloDoFilmeApi);
+                if (filme.isPresent()) {
+                    System.out.println("Filme '" + tituloDoFilmeApi + "' já existe no banco. Utilizando registro existente.");
+                    return converteDados(filme.get()); // Retorna o filme que já está no banco
+                }
+                Filme newFilme = new Filme(dadosDoPrimeiroFilme);
+                System.out.println("Salvando novo filme '" + newFilme.getTitle() + "' no banco de dados.");
+                filmeRepository.save(newFilme);
+                return converteDados(newFilme);
             }
         } catch (Exception e) {
             System.err.println("Erro ao buscar filme na web por nome: " + e.getMessage());
         }
-        // Retorna null se não encontrar resultados ou se ocorrer um erro
         return null;
     }
     public List<FilmeDTO> obterFilmesPorPalavraChave(String palavraChave) {

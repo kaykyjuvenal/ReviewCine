@@ -56,6 +56,8 @@ public class Main implements CommandLineRunner {
                     9 - Consultas de Série (Repository)
                     10 - Buscar Elenco por nome de Obra
                     11 - Teste para buscar o top 3 de filmes e series;
+                    12 - Teste Pessoas
+                    13 - Popular elencos
                                     
                     0 - Sair
                     """;
@@ -142,6 +144,15 @@ public class Main implements CommandLineRunner {
 
                                         System.out.println("\n--- TESTES DO PESSOA SERVICE CONCLUÍDOS ---");
                                         break;
+
+                                        case 13:
+                                                System.out.println("Popular Elencos gerais.");
+                                                try {
+                                                        elencoService.popularElencosDeTodaBaseViaApi();
+
+                                                }catch (Exception e){
+                                                        System.out.println(e.getMessage());
+                                                }
                         }
                 }
         }
