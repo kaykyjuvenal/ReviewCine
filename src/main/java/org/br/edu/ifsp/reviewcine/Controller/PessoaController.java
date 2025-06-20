@@ -35,7 +35,7 @@ public class PessoaController {
     }
 
 
-    @GetMapping("/obterPorNomeExato")
+    @GetMapping("/obterPorNome")
     public ResponseEntity<PessoaDTO> obterPorNomeExato(@RequestParam String nome) {
         PessoaDTO pessoa = pessoaService.obterPorNomeExato(nome);
         if (pessoa != null) {
@@ -64,8 +64,12 @@ public class PessoaController {
         return pessoaService.obterPorListaDeDepartamentos(departamentos);
     }
 
-    @GetMapping("/populares")
-    public List<PessoaDTO> obterTopPessoasPopulares(@RequestParam(defaultValue = "6") int top) {
+    @GetMapping("/obterTop10Populares")
+    public List<PessoaDTO> obterTopPessoasPopulares(@RequestParam(defaultValue = "10") int top) {
         return pessoaService.obterTopPessoasPopulares(top);
+    }
+    @GetMapping("/obterPorPopularidade")
+    public List<PessoaDTO> obterPorPopularidade() {
+        return pessoaService.obterPessoasPorPopularidade();
     }
 }

@@ -56,11 +56,14 @@ public class FilmeController {
             return ResponseEntity.ok(filmes);
         }
     }
+    @GetMapping("/obterPorPopularidade")
+    public List<FilmeDTO> obterPorPopularidade() {
+        return filmeService.obterTodosOsFilmesPorPopularidade();
+    }
 
-
-    @GetMapping("/obterTop3FilmesPopulares")
-    public List<FilmeDTO> obterTop3FilmesPopulares() {
-        return filmeService.obterTop3FilmesPopulares();
+    @GetMapping("/obterTop5FilmesPopulares")
+    public List<FilmeDTO> obterTop5FilmesPopulares() {
+        return filmeService.obterTop5FilmesPopulares();
     }
 
 

@@ -14,11 +14,11 @@ public class Pessoa {
     private String department;
     private String name;
     private String character;
-    private double popularity;
+    private int popularity;
 
     public Pessoa(){}
 
-    public Pessoa(int id, String adult, int gender, String department, String name, double popularity, String character) {
+    public Pessoa(int id, String adult, int gender, String department, String name, int popularity, String character) {
         this.id = id;
         this.adult = adult;
         this.gender = gender;
@@ -76,7 +76,7 @@ public class Pessoa {
         return name;
     }
 
-    public double getPopularity() {
+    public int getPopularity() {
         return popularity;
     }
 }

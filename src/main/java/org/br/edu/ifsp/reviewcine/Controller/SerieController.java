@@ -46,9 +46,9 @@ public class SerieController {
     }
 
 
-    @GetMapping("/obterTop3SeriesPopulares")
-    public List<SerieDTO> obterTop3SeriesPopulares() {
-        return serieService.obterTop3SeriesMaisPopulares(); // Supondo que este método exista na SerieService
+    @GetMapping("/obterTop5SeriesPopulares")
+    public List<SerieDTO> obterTop5SeriesPopulares() {
+        return serieService.obterTop5SeriesMaisPopulares(); // Supondo que este método exista na SerieService
     }
     @GetMapping("/obterPorParte")
     public List<SerieDTO> obterPorParte(@RequestParam("keyword") String keyWord) {
@@ -56,7 +56,7 @@ public class SerieController {
     }
 
 
-    @GetMapping("/porPopularidade")
+    @GetMapping("/obterPorPopularidade")
     public List<SerieDTO> obterTodasAsSeriesPorPopularidade() {
         return serieService.obterTodasAsSeries(); // Supondo que este método exista
     }

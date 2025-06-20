@@ -115,8 +115,8 @@ public class Main implements CommandLineRunner {
                                         System.out.println(elencoService.obterPorFilme("Titanic"));
                                         break; // << FIX ADICIONADO
                                 case 11:
-                                        System.out.println(filmeService.obterTop3FilmesPopulares());
-                                        System.out.println(serieService.obterTop3SeriesMaisPopulares());
+                                        System.out.println(filmeService.obterTop5FilmesPopulares());
+                                        System.out.println(serieService.obterTop5SeriesMaisPopulares());
                                         break;
                                 case 12:
                                         System.out.println("\n--- INICIANDO TESTES DO PESSOA SERVICE ---");

@@ -13,7 +13,7 @@ public record DadosPessoa(
     @JsonAlias("known_for_department") String department,
     @JsonAlias("name") String name,
     @JsonAlias("character") String character,
-    @JsonAlias("popularity") Double popularity
+    @JsonAlias("popularity") Integer popularity
 
 ){ }
 

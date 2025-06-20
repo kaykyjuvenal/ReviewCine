@@ -23,5 +23,7 @@ public interface FilmeRepository extends JpaRepository<Filme, Long> {
     List<Filme> findAllByOrderByVote_averageDesc();
     @Query("SELECT f FROM Filme f ORDER BY f.popularity DESC")
     List<Filme> findMaisPopulares(Pageable pageable);
+    @Query("SELECT f FROM Filme f ORDER BY f.popularity DESC")
+    List<Filme> findMaisPopulares();
 
 }

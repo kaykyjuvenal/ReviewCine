@@ -19,7 +19,6 @@ import java.util.List;
 public class PessoaService {
 
     private final PessoaRepository pessoaRepository;
-    // Adicionando dependências para consumo da API
     private final ConverteDados converteDados;
     private final ConsumoAPI consumoAPI;
 
@@ -38,18 +37,14 @@ public class PessoaService {
         }
     }
 
-    /**
-     * REFATORADO: Busca uma pessoa pelo ID. Se não encontrar localmente, busca na API do TMDB.
-     */
+
     public PessoaDTO obterPorId(Long id) {
         return pessoaRepository.findById(id)
                 .map(this::converteDadosParaDTO)
                 .orElseGet(() -> converteDadosParaDTO(buscarPessoaNaWebPorId(id)));
     }
 
-    /**
-     * REFATORADO: Busca uma pessoa pelo nome exato. Se não encontrar localmente, busca na API.
-     */
+
     public PessoaDTO obterPorNomeExato(String nome) {
         return pessoaRepository.findByNameIgnoreCase(nome)
                 .map(this::converteDadosParaDTO)
@@ -61,9 +56,7 @@ public class PessoaService {
                 });
     }
 
-    /**
-     * REFATORADO: Busca pessoas por parte do nome. Se a busca local não retornar nada, busca na API.
-     */
+
     public List<PessoaDTO> obterPorParteDoNome(String parteDoNome) {
         List<Pessoa> pessoasLocais = pessoaRepository.findByNameContainingIgnoreCase(parteDoNome);
         if (!pessoasLocais.isEmpty()) {
@@ -75,8 +68,7 @@ public class PessoaService {
         }
     }
 
-    // --- Métodos que buscam apenas no banco de dados local ---
-    // A API do TMDB não suporta busca de pessoas por estes critérios.
+
 
     public List<PessoaDTO> obterPorPersonagem(String nomePersonagem) {
         List<Pessoa> pessoas = pessoaRepository.findByCharacterContainingIgnoreCase(nomePersonagem);
@@ -98,6 +90,11 @@ public class PessoaService {
         List<Pessoa> pessoas = pessoaRepository.findMaisPopulares(topN);
         return converteDadosParaListaDTO(pessoas);
     }
+    public List<PessoaDTO> obterPessoasPorPopularidade(){
+        List<Pessoa> pessoas = pessoaRepository.findPorPopularidade();
+        return converteDadosParaListaDTO(pessoas);
+    }
+
 
     // --- Métodos Privados de Busca na API ---
 
@@ -107,7 +104,7 @@ public class PessoaService {
             String json = consumoAPI.obterDados(endereco);
             DadosPessoa dadosPessoa = converteDados.obterDados(json, DadosPessoa.class);
             Pessoa pessoa = new Pessoa(dadosPessoa);
-            savePessoa(pessoa); // Salva no banco para cache
+            savePessoa(pessoa);
             return pessoa;
         } catch (Exception e) {
             System.err.println("Erro ao buscar pessoa na web por ID: " + e.getMessage());
@@ -122,7 +119,6 @@ public class PessoaService {
             ResultadoAPI<DadosPessoa> resultado = converteDados.obterListaDeDados(json, DadosPessoa.class);
             if (resultado != null && !resultado.getResults().isEmpty()) {
                 List<Pessoa> pessoas = resultado.getResults().stream().map(Pessoa::new).toList();
-                // Salva todas as pessoas encontradas
                 pessoas.forEach(this::savePessoa);
                 return pessoas;
             }

@@ -180,8 +180,8 @@ public class SerieService {
                 .toList();
     }
 
-    public List<SerieDTO> obterTop3SeriesMaisPopulares() {
-        Pageable topTres = PageRequest.of(0, 3);
+    public List<SerieDTO> obterTop5SeriesMaisPopulares() {
+        Pageable topTres = PageRequest.of(0, 5);
         List<Serie> topSeries = serieRepository.findMaisPopulares(topTres);
         return converteDadosParaListaDTO(topSeries);
     }

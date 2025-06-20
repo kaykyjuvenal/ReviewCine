@@ -9,5 +9,5 @@ public record PessoaDTO(
         String department,
         String name,
         String character,
-        Double popularity) {
+        Integer popularity) {
 }

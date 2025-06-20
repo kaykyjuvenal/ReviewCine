@@ -36,6 +36,7 @@ public class FilmeService {
 
 
     public List<FilmeDTO> obterTodosOsFilmes(){return converteDados(filmeRepository.findAll());}
+    public List<FilmeDTO> obterTodosOsFilmesPorPopularidade(){return converteDados(filmeRepository.findMaisPopulares());}
     public FilmeDTO converteDados(Filme filme){
         return new FilmeDTO(filme.isAdult(),filme.getId(), filme.getLanguage(),
                 filme.getOverview(),filme.getPopularity(), filme.getRelease_date(), filme.getTitle(),
@@ -56,9 +57,9 @@ public class FilmeService {
             filmeRepository.save(filme); // faz update
         }
     }
-    public List<FilmeDTO> obterTop3FilmesPopulares() {
+    public List<FilmeDTO> obterTop5FilmesPopulares() {
         // Cria um objeto de paginação: página 0 (a primeira), com 3 elementos.
-        Pageable topTres = PageRequest.of(0, 3);
+        Pageable topTres = PageRequest.of(0, 5);
 
         List<Filme> topFilmes = filmeRepository.findMaisPopulares(topTres);
         return converteDados(topFilmes);

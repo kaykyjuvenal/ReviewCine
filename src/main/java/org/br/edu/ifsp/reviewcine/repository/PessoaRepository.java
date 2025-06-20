@@ -33,6 +33,8 @@ public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
     List<Pessoa> findAllComOrdenacaoDePopularidade();
     @Query("SELECT p FROM Pessoa p ORDER BY p.popularity DESC")
     List<Pessoa> findMaisPopulares(Pageable pageable);
+    @Query("SELECT p FROM Pessoa p ORDER BY p.popularity DESC")
+    List<Pessoa> findPorPopularidade();
 
     @Query("SELECT p FROM Pessoa p WHERE p.gender = :genderCode")
     List<Pessoa> findByGender(int genderCode);
